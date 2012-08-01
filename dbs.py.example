@@ -1,0 +1,12 @@
+'''databases'''
+
+import couchdb
+
+# development db
+couch_dev = couchdb.Server('http://localhost:5984')
+dev = couch_dev['debugdb-testing']
+
+# production db
+couch_prod = couchdb.Server('http://localhost:5984')
+prod = couch_prod['debugdb']
+
