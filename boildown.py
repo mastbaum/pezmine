@@ -27,8 +27,9 @@ def chinj_scan(doc, id):
         for i, o in enumerate(doc[field][8*slot:8*slot+8]):
             if field.startswith('errors'):
                 o = map(int, o)
-            k = '%s__%i' % (field, i)
-            d[k] = o
+            for j, p in enumerate(o):
+                k = '%s__%i__%i' % (field, i, j)
+                d[k] = p
 
     return d
 

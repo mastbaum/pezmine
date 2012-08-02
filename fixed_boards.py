@@ -90,14 +90,14 @@ if __name__ == '__main__':
         for row in db.view('debugdb/tests_by_db', startkey=[board], endkey=[board,{}]):
             status = ('PASS' if row.value['pass'] else 'FAIL') if 'pass' in row.value else '????'
 
-            print '%3i: %s %s %s -- %s/%s' % (testidx, row.value['created'], status, row.value['type'], row.value['type'], row.id)
+            print '%3i: %s %s  %s/%s' % (testidx, row.value['created'], status, row.value['type'], row.id)
 
             # add all tests in a final test as a group
             if row.value['type'] == 'final_test':
                 fttests = []
                 for ftrow in db.view('debugdb/final_test', startkey=[row.id], endkey=[row.id,{}]):
                     if ftrow.key[1] == 1:
-                        print '\t\t\t\t   * %s %s %s' % ('PASS' if ftrow.value['pass'] else 'FAIL', ftrow.value['type'], ftrow.id)
+                        print '\t\t\t\t   * %s   %s/%s' % ('PASS' if ftrow.value['pass'] else 'FAIL', ftrow.value['type'], ftrow.id)
                         fttests.append(ftrow.id)
                 tests.append(fttests)
 

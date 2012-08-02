@@ -7,6 +7,10 @@ import boildown
 import dbs
 
 db = dbs.prod
+debug = False
+
+class InvalidIDError(Exception):
+    pass
 
 class Board:
     '''A board
@@ -19,10 +23,10 @@ class Board:
     '''
     def __init__(self, id, tests=None):
         if id[0] not in ['f', 'd']:
-            raise Exception('Bad board id %s' % id)
+            raise InvalidIDError('Bad board id %s' % id)
 
         self.id = id
-        self.channels = self.load_channel_status()
+        #self.channels = self.load_channel_status()
         self.vectors = self.load_tests(tests)
 
     def load_channel_status(self):
@@ -36,10 +40,7 @@ class Board:
         '''
         # if a list of tests isn't provided, the the most recent of each
         if tests is None:
-            if self.id.startswith('f'):
-                view = 'debugdb/tests_by_fec'
-            if self.id.startswith('d'):
-                view = 'debugdb/tests_by_db'
+            view = 'debugdb/tests_by_%s' % ('fec' if self.id[0] == 'f' else 'db')
 
             tests = {}
             for row in db.view(view, startkey=[self.id], endkey=[self.id, {}]):
@@ -56,7 +57,8 @@ class Board:
             try:
                 t[doc['type']] = getattr(boildown, doc['type'])(doc, self.id)
             except AttributeError:
-                print 'Unable to boil down', doc['type']
+                if debug:
+                    print 'Unable to boil down', doc['type']
 
         return t
 
