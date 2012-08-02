@@ -49,10 +49,7 @@ def distance_euclidean(a, b=None):
 
     return math.sqrt(s2)
 
-def cluster(test, boards, centers=None, epsilon=5, rmsmax=2):
-    if centers is None:
-        centers = [-1e6, 1e6] # idk
-
+def cluster(test, boards, centers=[0], epsilon=5, rmsmax=2):
     delta = epsilon + 1
     iteration_count = 0
     while delta > epsilon:
