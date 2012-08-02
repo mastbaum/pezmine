@@ -77,18 +77,18 @@ def disc_check(doc, id):
 
 # fec
 # not yet used... need to think about this
-def cald_test(doc):
-    return {
-        'cald_test__adc_0': doc['adc_0'],
-        'cald_test__adc_1': doc['adc_1'],
-        'cald_test__adc_2': doc['adc_2'],
-        'cald_test__adc_3': doc['adc_3'],
-        'cald_test__dac_value': doc['dac_value']
-    }
+#def cald_test(doc):
+#    return {
+#        'cald_test__adc_0': doc['adc_0'],
+#        'cald_test__adc_1': doc['adc_1'],
+#        'cald_test__adc_2': doc['adc_2'],
+#        'cald_test__adc_3': doc['adc_3'],
+#        'cald_test__dac_value': doc['dac_value']
+#    }
 
-def cgt_test(doc):
-    return {
-        'cgt_test__errors': map(int, doc['errors']),
-        'cgt_test__missing_bundles': int(doc['missing_bundles'])
-    }
+#def cgt_test(doc):
+#    return {
+#        'cgt_test__errors': map(int, doc['errors']),
+#        'cgt_test__missing_bundles': int(doc['missing_bundles'])
+#    }
 

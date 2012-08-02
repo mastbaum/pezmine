@@ -1,5 +1,7 @@
 '''generate problem clusters.
 
+* this is somewhat defunct *
+
 loop through recent tests on each board, use the `boildown` functions to
 flatten the tests, and treat the flattened tests as vectors to compute the
 (euclidean) distance between boards. clusters of boards indicate a common
