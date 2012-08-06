@@ -4,7 +4,7 @@ import pickle
 from board import Board, FixedBoard, InvalidIDError
 import dbs
 
-db = dbs.prod
+db = dbs.dev
 
 def get_fixed_boards():
     '''Load fixed board data from disk.'''
@@ -25,7 +25,7 @@ def get_bad_boards():
     '''Load bad boards from db, where bad = debugging status | status.'''
     boards = []
     for row in db.view('debugdb/tags_with_status', group_level=1):
-        if row.value[0] == 'bad' or db[row.key]['status'] == 'bad':
+        if row.value[0] == 'bad' or (db[row.key]['status'] == 'bad' if row.key in db else False):
             print 'Bad:', row.key
             try:
                 boards.append(Board(row.key))
@@ -49,9 +49,10 @@ def distance_euclidean(a, b=None):
 
     return math.sqrt(s2)
 
-def cluster(test, boards, centers=[0], epsilon=5, rmsmax=2):
+def cluster_k_means(test, boards, centers=[0], epsilon=5, rmsmax=2):
     delta = epsilon + 1
     iteration_count = 0
+    ids = None
     while delta > epsilon:
         print '== Iteration %i (delta %f) ==' % (iteration_count, delta)
         ids = [[] for i in range(len(centers))]
@@ -68,10 +69,13 @@ def cluster(test, boards, centers=[0], epsilon=5, rmsmax=2):
             outlier = False
             if len(pos[cluster_index]) > 1:
                 mean = sum(pos[cluster_index])/len(pos[cluster_index])
-                rms = math.sqrt(1.0/len(pos[cluster_index]) * sum([x**2-mean**2 for x in pos[cluster_index]]))
-                d = abs(s - mean)
-                #print 'check outlier', d, rms, rmsmax
-                outlier = d > rms * rmsmax
+                try:
+                    rms = math.sqrt(1.0/len(pos[cluster_index]) * sum([x**2-mean**2 for x in pos[cluster_index]]))
+                    d = abs(s - mean)
+                    #print 'check outlier', d, rms, rmsmax
+                    outlier = d > rms * rmsmax
+                except ValueError:
+                    print 'domain error', mean, pos[cluster_index]
 
             if outlier:
                 centers.append(s)
@@ -104,14 +108,36 @@ def cluster(test, boards, centers=[0], epsilon=5, rmsmax=2):
 
     print '** Converged after %i iterations (delta = %f)' % (iteration_count, delta)
 
+    def find(l, k, v):
+        for o in l:
+            try:
+                if getattr(o, 'id') == v:
+                    return o
+            except AttributeError:
+                continue
+
+        return None
+
+    return [[find(boards, 'id', id) for id in c] for c in ids]
+
 if __name__ == '__main__':
     fixed = get_fixed_boards()
     print 'Loaded', len(fixed), 'fixed boards'
 
-    #bad = get_bad_boards()
-    #print 'Loaded', len(bad), 'bad boards'
+    bad = get_bad_boards()
+    print 'Loaded', len(bad), 'bad boards'
 
     for test in ['disc_check']: #['chinj_scan', 'cmos_m_gtvalid', 'crate_cbal', 'disc_check']:
-        cluster(test, fixed)
+        clusters = cluster_k_means(test, bad + fixed)
 
+    print 'Clusters:', clusters
+
+    for i, cluster in enumerate(clusters):
+        print '-' * 40
+        print 'Cluster', i
+        for board in cluster:
+            if isinstance(board, FixedBoard):
+                print board.id, board.solution
+            else:
+                print board.id
 

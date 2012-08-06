@@ -24,7 +24,7 @@ def chinj_scan(doc, id):
     d = {}
     fields = ['%s_%s' % (i, j) for j in ('even', 'odd') for i in ('QHL', 'QHS', 'QLX', 'TAC', 'errors')]
     for field in fields:
-        for i, o in enumerate(doc[field][8*slot:8*slot+8]):
+        for i, o in enumerate(doc[field][8*slot:8*slot+8] if slot else doc[field]):
             if field.startswith('errors'):
                 o = map(int, o)
             for j, p in enumerate(o):
@@ -36,7 +36,7 @@ def chinj_scan(doc, id):
 def cmos_m_gtvalid(doc, id):
     slot = get_db_id(doc['config'], id)
     d = {}
-    for i, o in enumerate(doc['channels'][8*slot:8*slot+8]):
+    for i, o in enumerate(doc['channels'][8*slot:8*slot+8] if slot else doc['channels']):
         if 'id' in o:
             del o['id']
         o['errors'] = int(o['errors'])
@@ -53,7 +53,7 @@ def cmos_m_gtvalid(doc, id):
 def crate_cbal(doc, id):
     slot = get_db_id(doc['config'], id)
     d = {}
-    for i, o in enumerate(doc['channels'][8*slot:8*slot+8]):
+    for i, o in enumerate(doc['channels'][8*slot:8*slot+8] if slot else doc['channels']):
         if 'id' in o:
             del o['id']
         if 'error_flags' in o:
@@ -67,7 +67,7 @@ def crate_cbal(doc, id):
 def disc_check(doc, id):
     slot = get_db_id(doc['config'], id)
     d = {}
-    for i, o in enumerate(doc['channels'][8*slot:8*slot+8]):
+    for i, o in enumerate(doc['channels'][8*slot:8*slot+8] if slot else doc['channels']):
         if 'id' in o:
             del o['id']
         o['errors'] = int(o['errors'])

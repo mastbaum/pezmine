@@ -45,7 +45,8 @@ class Board:
             tests = {}
             for row in db.view(view, startkey=[self.id], endkey=[self.id, {}]):
                 name = row.value['type']
-                if not name in tests and not name == 'final_test':
+                status = row.value['pass'] if 'pass' in row.value else True
+                if not name in tests and not name == 'final_test' and not status:
                     tests[name] = row.id
 
             tests = tests.values()
@@ -56,14 +57,17 @@ class Board:
             doc = db[id]
             try:
                 t[doc['type']] = getattr(boildown, doc['type'])(doc, self.id)
-            except AttributeError:
+            except AttributeError, TypeError: #fixme typeerror is a hack
                 if debug:
                     print 'Unable to boil down', doc['type']
 
         return t
 
     def __repr__(self):
-        return '<%s %s (%i tests, %i channels)>' % (self.__class__.__name__, self.id, len(self.tests), len(self.channels))
+        if hasattr(self, 'channels'):
+            return '<%s %s (%i tests, %i channels)>' % (self.__class__.__name__, self.id, len(self.tests), len(self.channels))
+        else:
+            return '<%s %s (%i tests)>' % (self.__class__.__name__, self.id, len(self.tests))
 
 class FixedBoard(Board):
     '''A board that has been debugged
